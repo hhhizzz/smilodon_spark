@@ -2,18 +2,21 @@ package com.netease.smilodon.spark.stream
 
 import com.netease.smilodon.spark.utils.{ConfUtil, JmxMessageUtil}
 import com.netease.smilodon.spark.Main
-import org.apache.spark.SparkConf
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.streaming.dstream.DStream
 
-object HDFSJmxStreamTool  {
-  def saveToMySQL(dStream: DStream[ClassMessage]): Unit = {
+object JmxStreamTool  {
+  def saveToMySQL(dStream: DStream[ClassMessage]):Unit={
+    HDFSSaveToMySQL(dStream)
+  }
+
+  private def HDFSSaveToMySQL(dStream: DStream[ClassMessage]): Unit = {
     val kafkaArgs = ConfUtil.getKafkaArgs(Main.debug)
     val datanodeJmxMessage = dStream.filter(data => data.path.contains("hadoop-metrics-datanode"))
 
 
     val message = datanodeJmxMessage.map { data =>
-      JmxMessageUtil.messageToJmxMessage(data.message)
+      JmxMessageUtil.classMessageToJmxMessage(data)
     }
 
 
